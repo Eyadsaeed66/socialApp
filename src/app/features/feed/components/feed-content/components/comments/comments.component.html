@@ -1,0 +1,433 @@
+<section
+  class="border border-slate-200 rounded-[16px] p-4 bg-white"
+  aria-label="Comments"
+>
+  <!-- ========================= -->
+  <!-- Comments Header -->
+  <!-- ========================= -->
+
+  <div class="flex items-center gap-2 mb-4">
+    <h3 class="font-bold text-[15px] text-slate-900">
+      Comments
+    </h3>
+
+    <span
+      class="bg-blue-100 text-blue-600 text-[12px] font-bold px-2 py-0.5 rounded-full"
+    >
+      {{ comments.length }}
+    </span>
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- Comments List -->
+  <!-- ========================= -->
+
+  @for (comment of comments; track comment._id) {
+
+    <div class="flex gap-2 mb-5 group">
+
+      <!-- Comment Creator Photo -->
+      <img
+        [src]="comment.commentCreator.photo"
+        [alt]="comment.commentCreator.name"
+        class="w-8 h-8 rounded-full object-cover shrink-0 mt-1 bg-slate-100 border border-slate-50"
+      />
+
+      <div class="flex-1 flex flex-col items-start min-w-0">
+
+        <!-- Comment Bubble -->
+        <div
+          class="bg-slate-100 rounded-2xl rounded-tl-none px-3.5 py-2.5 max-w-full"
+        >
+
+          <!-- Comment Creator Name -->
+          <div class="flex items-center gap-1.5 mb-0.5">
+            <span
+              class="text-[13px] font-bold text-slate-900 hover:underline cursor-pointer"
+            >
+              {{ comment.commentCreator.name }}
+            </span>
+          </div>
+
+
+          <!-- Username + Created At -->
+          <div
+            class="flex items-center gap-1 text-[12px] text-slate-500 mb-1"
+          >
+            <span>
+              &#64;{{ comment.commentCreator.username }}
+            </span>
+
+            <span>&middot;</span>
+
+            <time [attr.datetime]="comment.createdAt">
+              {{ comment.createdAt | date:'MMM d, y, h:mm a' }}
+            </time>
+          </div>
+
+
+          <!-- ========================= -->
+          <!-- Comment Content -->
+          <!-- ========================= -->
+
+          @if (comment.content) {
+
+            <p
+              class="text-[14px] text-slate-800 wrap-break-word whitespace-pre-wrap"
+            >
+              {{ comment.content }}
+            </p>
+
+          }
+
+
+          <!-- ========================= -->
+          <!-- Comment Image -->
+          <!-- ========================= -->
+
+          @if (comment.image) {
+
+            <div class="mt-2">
+              <img
+                [src]="comment.image"
+                alt="Comment image"
+                loading="lazy"
+                class="max-w-full max-h-80 rounded-xl object-cover"
+              />
+            </div>
+
+          }
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- Comment Actions -->
+        <!-- ========================= -->
+
+        <div
+          class="flex items-center gap-3 mt-1 ml-2 text-[12px] text-slate-500 font-semibold"
+        >
+
+          <!-- Created At -->
+          <time
+            [attr.datetime]="comment.createdAt"
+            class="cursor-pointer hover:underline"
+          >
+            {{ comment.createdAt | date:'MMM d, y' }}
+          </time>
+
+
+          <!-- Like -->
+          <button
+            type="button"
+            class="cursor-pointer hover:underline"
+          >
+            Like ({{ comment.likes.length }})
+          </button>
+
+
+          <!-- Reply -->
+          <button
+            type="button"
+            class="cursor-pointer hover:underline"
+          >
+            Reply
+          </button>
+
+
+          <!-- ========================= -->
+          <!-- More / Update / Delete -->
+          <!-- ========================= -->
+
+          @if (comment.commentCreator._id === userId) {
+
+            <div class="relative">
+
+              <!-- More Button -->
+              <button
+                type="button"
+                aria-label="More options"
+                (click)="toggleCommentDropdown(comment._id)"
+                class="w-6 h-6 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <i class="fa-solid fa-ellipsis"></i>
+              </button>
+
+
+              <!-- Dropdown -->
+              @if (openCommentDropdownId === comment._id) {
+
+                <div
+                  class="absolute left-0 top-8 z-50 w-36 bg-white border border-slate-200 rounded-xl shadow-lg p-1"
+                >
+
+                  <!-- ========================= -->
+                  <!-- Update -->
+                  <!-- ========================= -->
+
+                  <button
+                    type="button"
+                    (click)="editComment(comment)"
+                    class="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors"
+                  >
+                    <i class="fa-regular fa-pen-to-square"></i>
+
+                    <span>
+                      Edit
+                    </span>
+                  </button>
+
+
+                  <!-- ========================= -->
+                  <!-- Delete -->
+                  <!-- ========================= -->
+
+                  <button
+                    type="button"
+                    (click)="deleteComment(comment._id)"
+                    class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg cursor-pointer transition-colors"
+                  >
+                    <i class="fa-regular fa-trash-can"></i>
+
+                    <span>
+                      Delete
+                    </span>
+                  </button>
+
+                </div>
+
+              }
+
+            </div>
+
+          }
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- Replies -->
+        <!-- ========================= -->
+
+        @if (comment.repliesCount > 0) {
+
+          <button
+            type="button"
+            class="ml-2 mt-1 text-[12px] font-semibold text-blue-500 hover:underline"
+          >
+            View {{ comment.repliesCount }}
+            {{ comment.repliesCount === 1 ? 'reply' : 'replies' }}
+          </button>
+
+        }
+
+      </div>
+
+    </div>
+
+  }
+
+
+  <!-- ========================= -->
+  <!-- Empty Comments -->
+  <!-- ========================= -->
+
+  @if (comments.length === 0) {
+
+    <div class="py-6 text-center">
+
+      <div
+        class="w-10 h-10 mx-auto mb-2 rounded-full bg-slate-100 flex items-center justify-center"
+      >
+        <i class="fa-regular fa-comments text-slate-400"></i>
+      </div>
+
+      <p class="text-sm font-semibold text-slate-600">
+        No comments yet
+      </p>
+
+      <p class="text-xs text-slate-400 mt-1">
+        Be the first to comment.
+      </p>
+
+    </div>
+
+  }
+
+
+  <!-- ========================= -->
+  <!-- Create / Update Comment -->
+  <!-- ========================= -->
+
+  <div class="flex gap-2 mt-4">
+
+    <!-- Current User Photo -->
+    <img
+      src="https://i.pravatar.cc/150?img=11"
+      alt="Your profile"
+      class="w-8 h-8 rounded-full object-cover shrink-0 mt-1 bg-slate-100 border border-slate-50"
+    />
+
+
+    <!-- Comment Input -->
+    <div
+      class="flex-1 bg-slate-100 border border-transparent focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-50 focus-within:bg-white transition-all rounded-[20px] p-2 flex flex-col"
+    >
+
+      <!-- Editing Indicator -->
+      @if (editingComment) {
+
+        <div
+          class="flex items-center justify-between px-2 pt-1 pb-2"
+        >
+
+          <div class="flex items-center gap-2 text-blue-500 text-xs font-semibold">
+            <i class="fa-regular fa-pen-to-square"></i>
+
+            <span>
+              Editing comment
+            </span>
+          </div>
+
+          <button
+            type="button"
+            (click)="cancelEditComment()"
+            class="text-slate-400 hover:text-slate-700 cursor-pointer"
+            aria-label="Cancel edit"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+
+        </div>
+
+      }
+
+
+      <!-- Textarea -->
+      <textarea
+        [formControl]="commentControl"
+        class="w-full ring-0 bg-transparent border-none text-[14px] text-slate-800 placeholder-slate-500 resize-none outline-none px-2 pt-1 pb-2 min-h-15"
+        [placeholder]="
+          editingComment
+            ? 'Edit your comment...'
+            : 'Write a comment...'
+        "
+      ></textarea>
+
+
+      <!-- Image Preview -->
+      @if (imagePreview) {
+
+        <div class="px-2 pb-2">
+
+          <div class="relative inline-block">
+
+            <img
+              [src]="imagePreview"
+              alt="Comment image preview"
+              class="w-24 h-24 rounded-xl object-cover border border-slate-200"
+            />
+
+            <!-- Remove Image -->
+            <button
+              type="button"
+              (click)="removeCommentImage()"
+              aria-label="Remove image"
+              class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-slate-800 text-white flex items-center justify-center cursor-pointer hover:bg-slate-700 transition-colors"
+            >
+              <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+
+          </div>
+
+        </div>
+
+      }
+
+
+      <!-- Bottom Actions -->
+      <div class="flex items-center justify-between px-1">
+
+        <!-- Photo / Video -->
+        <div class="flex items-center gap-1">
+
+          <input
+            type="file"
+            id="create-comment-file"
+            class="hidden"
+            accept="image/*"
+            (change)="onCommentFileSelected($event)"
+          />
+
+          <label
+            for="create-comment-file"
+            class="flex cursor-pointer items-center gap-2 text-slate-600 hover:bg-slate-50 px-2 py-1.5 rounded-lg transition-colors group"
+          >
+
+            <i
+              class="fa-regular fa-image text-[#22c55e] text-[1.1rem] group-hover:scale-110 transition-transform"
+            ></i>
+
+            <span
+              class="text-[14px] font-semibold text-slate-600"
+            >
+              Photo/video
+            </span>
+
+          </label>
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- Create / Update Button -->
+        <!-- ========================= -->
+
+        <button
+          type="button"
+          aria-label="Submit comment"
+          (click)="editingComment ? submitUpdateComment() : submitComment()"
+          [disabled]="
+            isCreatingComment ||
+            isUpdatingComment ||
+            (!commentControl.value?.trim() && !selectedImage)
+          "
+          class="w-8 h-8 rounded-full bg-blue-400 hover:bg-blue-500 disabled:bg-slate-300 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors"
+        >
+
+          @if (isCreatingComment || isUpdatingComment) {
+
+            <i
+              class="fa-solid fa-spinner fa-spin text-[13px]"
+            ></i>
+
+          } @else {
+
+            @if (editingComment) {
+
+              <i
+                class="fa-solid fa-check text-[13px]"
+              ></i>
+
+            } @else {
+
+              <i
+                class="fa-solid fa-paper-plane text-[13px] ms-1"
+              ></i>
+
+            }
+
+          }
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+

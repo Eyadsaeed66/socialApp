@@ -1,0 +1,40 @@
+export interface CommentsResponse {
+  success: boolean;
+  message: string;
+  data: CommentsData;
+  meta: CommentsMeta;
+}
+
+export interface CommentsData {
+  comments: Comment[];
+}
+
+export interface Comment {
+  _id: string;
+  content: string;
+image: string | null;
+  commentCreator: CommentCreator;
+  post: string;
+  parentComment: string | null;
+  likes: string[];
+  createdAt: string;
+  repliesCount: number;
+}
+
+export interface CommentCreator {
+  _id: string;
+  name: string;
+  username: string;
+  photo: string;
+}
+
+export interface CommentsMeta {
+  pagination: Pagination;
+}
+
+export interface Pagination {
+  currentPage: number;
+  limit: number;
+  total: number;
+  numberOfPages: number;
+}

@@ -1,0 +1,9 @@
+Global Styles:
+
+  --color-main-color: #00298d;
+  --color-light-grey: #f0f2f5;
+------------------------------------------------------------
+Global Fonts:
+
+SN Pro [name of the font]
+<div class = >;lasd;dasld;'
